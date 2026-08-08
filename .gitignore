@@ -1,6 +1,7 @@
 .gradle
 **/build/
 !**/src/**/build/
+!gradle/wrapper/**
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -14,8 +15,22 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
+# Gradle properties holding local GitHub Packages credentials (gpr.user/gpr.key) — never commit
+gradle.properties.local
+
 # Eclipse Gradle plugin generated files
 # Eclipse Core
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# VS Code
+.vscode/
+
+# Compiled class files
+*.class

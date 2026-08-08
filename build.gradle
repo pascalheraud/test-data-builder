@@ -1,0 +1,91 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "NativSqlGitHubPackages"
+        url = "https://maven.pkg.github.com/pascalheraud/nativsql"
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+ext {
+    nativsqlVersion = "2.11.0" // latest version actually published to GitHub Packages
+    testcontainersVersion = "2.0.5" // matches NativSQL's own pin, avoids classpath clashes
+}
+
+dependencies {
+    api "org.springframework:spring-jdbc:6.1.14"
+
+    // NativSQL's test-fixtures POMs don't declare their own dependencies (no Gradle
+    // module metadata published for that publication) — every dependency they need
+    // at compile/runtime is therefore listed here explicitly instead of resolving
+    // transitively. See the skill in this repo for the tracking note upstream.
+    testImplementation platform("org.springframework.boot:spring-boot-dependencies:4.1.0")
+    testImplementation "ovh.heraud:nativsql-core:${nativsqlVersion}"
+    testImplementation "ovh.heraud:nativsql-core-test-fixtures:${nativsqlVersion}"
+    testImplementation "ovh.heraud:nativsql-postgres-test-fixtures:${nativsqlVersion}"
+    testImplementation "ovh.heraud:nativsql-mariadb-test-fixtures:${nativsqlVersion}"
+    testImplementation "ovh.heraud:nativsql-mysql-test-fixtures:${nativsqlVersion}"
+    testImplementation "ovh.heraud:nativsql-oracle-test-fixtures:${nativsqlVersion}"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-testcontainers"
+    testImplementation platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}")
+    testImplementation "org.testcontainers:testcontainers"
+    testImplementation "org.testcontainers:testcontainers-junit-jupiter"
+    testImplementation "org.testcontainers:testcontainers-postgresql"
+    testImplementation "org.testcontainers:testcontainers-mariadb"
+    testImplementation "org.testcontainers:testcontainers-mysql"
+    testImplementation "org.testcontainers:testcontainers-oracle-free"
+
+    testImplementation "org.postgresql:postgresql:42.7.4"
+    testImplementation "org.mariadb.jdbc:mariadb-java-client:3.5.1"
+    testImplementation "com.mysql:mysql-connector-j:9.1.0"
+    testImplementation "com.oracle.database.jdbc:ojdbc11:23.6.0.24.10"
+
+    testImplementation "org.assertj:assertj-core"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/pascalheraud/test-data-builder"
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+        }
+    }
+}
