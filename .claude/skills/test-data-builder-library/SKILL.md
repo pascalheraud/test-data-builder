@@ -5,11 +5,11 @@ description: Decisions behind this repo's TestDataBuilder library — versioning
 
 # TestDataBuilder library (this repo)
 
-This repo implements the model documented in the generic
-[[backend-java-test-data-builder]] skill — read that one first for the
-model itself (`TestDataBuilder`, `Data`, `TestTable`, `TestColumn`,
-`SqlExpression`, template patterns, naming, lifecycle). This skill only
-captures decisions specific to *this* implementation.
+For the model itself (`TestDataBuilder`, `Data`, `TestTable`, `TestColumn`,
+`SqlExpression`, template patterns, naming, lifecycle), see
+[USERGUIDE.md](../../../USERGUIDE.md) or `test-data-builder-usage` — this
+skill only captures decisions specific to *this repo's implementation*
+(versioning, the bookstore example, vendor support, API conventions).
 
 ## Language
 
@@ -20,7 +20,7 @@ publicly-facing library.
 
 ## Test style: Given/When/Then
 
-Every test method follows [[backend-java-test-e2e]]'s Given/When/Then
+Every test method follows [[backend/java/test/playwright]]'s Given/When/Then
 structure — a comment per section, even for one-liners. Applies here even
 though these aren't E2E tests; the convention is about readability, not
 about the test level.

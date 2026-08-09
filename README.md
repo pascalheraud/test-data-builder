@@ -77,12 +77,42 @@ PostgreSQL, MariaDB, MySQL, Oracle — the same vendors as
 [NativSQL](https://github.com/pascalheraud/nativsql), whose own
 Testcontainers setup this library's test suite reuses.
 
-## Repo conventions
+## For Claude Code users
 
-If you're using Claude Code on this repo, `.claude/skills/test-data-builder-library/`
-records the decisions behind this codebase (versioning, the bookstore
-example, database-vendor support, API conventions) — load it before making
-structural changes.
+- **Using this library in your own project?** Copy `src/claude/test-data-builder-usage/`
+  into your project — see below. It covers dependency setup, GitHub Packages
+  auth, and how to map your schema to `Table`/`Column`/`Data`.
+- **Changing this repo's own code?** Load `test-data-builder-library` (in
+  this repo's `.claude/skills/`, active while working in this repo) — the
+  decisions behind this codebase (versioning, the bookstore example,
+  database-vendor support, API conventions).
+
+`test-data-builder-usage` lives under `src/claude/`, not `.claude/skills/`,
+on purpose: it documents how *other* projects consume the published
+artifact, not how to work on this repo's own code, so it has no reason to
+auto-load while developing this library itself. `src/claude/` is the
+canonical copy a consuming project copies from.
+
+### Making the skill available in a consuming project
+
+A project that only depends on `ovh.heraud:testdatabuilder` at build time
+doesn't get the skill for free — nothing about a Maven/Gradle dependency
+pulls in `src/claude/`.
+
+**Simplest: copy `src/claude/test-data-builder-usage/` into the consuming
+project's own `.claude/skills/`.** No git plumbing, nothing to initialize
+on every clone — just a plain copy of the folder, versioned as part of the
+consuming project itself. The tradeoff is staleness: if this skill changes
+later, the copy doesn't update itself, so re-copy it occasionally (e.g.
+when bumping the `testdatabuilder` dependency version).
+
+If instead you want the copy to stay in sync automatically, this is also
+possible via a **git submodule with a partial clone + sparse-checkout**
+scoped to just `src/claude/test-data-builder-usage` (and `USERGUIDE.md`,
+which the skill links to) — avoids pulling in this repo's Java source,
+build files, and tests. More setup than it's worth for most projects; reach
+for it only if drift between the copy and this repo's skill is a real
+recurring problem.
 
 ## Contributing
 
