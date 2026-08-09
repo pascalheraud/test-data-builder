@@ -3,6 +3,8 @@ name: test-data-builder-usage
 description: How to consume the published TestDataBuilder library (ovh.heraud:testdatabuilder) from another project — dependency setup, GitHub Packages auth, and mapping your own schema to Table/Column/Data.
 ---
 
+<!-- Source: https://github.com/pascalheraud/test-data-builder (copy this file to update it) -->
+
 # Using TestDataBuilder (as a dependency)
 
 This skill is for a project that **consumes** the published `ovh.heraud:testdatabuilder`

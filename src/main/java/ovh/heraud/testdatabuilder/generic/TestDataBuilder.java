@@ -87,9 +87,12 @@ public abstract class TestDataBuilder {
 
 	/**
 	 * Sets {@code column} on {@code data}, converting {@code value} first if needed.
-	 * The base implementation is transparent — it stores {@code value} as-is. A
-	 * project-specific subclass overrides this to convert project-specific value
-	 * types (e.g. a date-builder type) based on {@code column.targetType()}.
+	 * A {@code java.util.Date} (or subclass) is converted per {@code column.targetType()}
+	 * — to a {@code java.sql.Date}, a {@code java.sql.Timestamp}, or a {@code String},
+	 * since the JDBC driver can't infer the SQL type of an arbitrary {@code java.util.Date}
+	 * passed via {@code setObject}. Any other value is stored as-is. A project-specific
+	 * subclass overrides this to convert project-specific value types (e.g. a
+	 * date-builder type) to a {@code java.util.Date} and delegate to this implementation.
 	 *
 	 * @param data   the row to set the column on
 	 * @param column the column to set
@@ -97,6 +100,15 @@ public abstract class TestDataBuilder {
 	 * @return {@code data}, for chaining
 	 */
 	public Data setDataColumn(Data data, TestColumn column, Object value) {
+		if (value instanceof java.util.Date date) {
+			Object converted = switch (column.targetType()) {
+				case TIMESTAMP -> new java.sql.Timestamp(date.getTime());
+				case DATE -> new java.sql.Date(date.getTime());
+				case STRING -> date.toString();
+				case TRANSPARENT -> date;
+			};
+			return data.setColumn(column, converted);
+		}
 		return data.setColumn(column, value);
 	}
 
