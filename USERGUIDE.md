@@ -146,7 +146,7 @@ the cases where combining them isn't what you want:
 
 | Call | Deletes | Inserts | Use it alone when |
 |---|---|---|---|
-| `create()` | nothing | every registered `Data` not yet inserted | you know the tables are already clean (a fresh Testcontainers database, or a repository test relying on transaction rollback for isolation — see [[backend-java-test-data-builder]]) and don't want a no-op `DELETE` pass, or you're adding a second batch mid-test after `apply()` already ran once (see below) |
+| `create()` | nothing | every registered `Data` not yet inserted | you know the tables are already clean (a fresh Testcontainers database, or a repository test relying on transaction rollback for isolation — see [below](#isolation-strategy-differs-by-test-level-not-by-testdatabuilder)) and don't want a no-op `DELETE` pass, or you're adding a second batch mid-test after `apply()` already ran once (see below) |
 | `delete()` | every table this builder has touched, in the right order | nothing | you want to assert on an empty/cleaned-up state directly, without immediately reseeding |
 | `apply()` | (via `delete()`) | (via `create()`) | the normal case — almost always this one |
 
@@ -412,7 +412,7 @@ class PlaceOrderScenarioTest extends E2ETestBase {
 }
 ```
 
-This mirrors [[test-e2e]]'s scenario/PageObject structure exactly — nothing
+This mirrors [[test/e2e]]'s scenario/PageObject structure exactly — nothing
 about using TestDataBuilder inside an E2E scenario differs from a
 repository test, beyond `apply()` running against a database with no
 transaction to undo it. In particular:
@@ -445,30 +445,35 @@ transaction to undo it. In particular:
   at the cost of spelling out the table list (and its FK-safe order)
   explicitly instead of letting it track itself.
 
-See [[backend-java-test-e2e]] for the full Java/Testcontainers/Playwright
+See [[backend/java/test/playwright]] for the full Java/Testcontainers/Playwright
 setup (stack layout, `E2ETestBase`, PageObject conventions, non-intrusive
 mocking) this example builds on — this section only covers what's specific
 to using `TestDataBuilder` inside that setup.
 
 ## For Claude Code users
 
-Skills from the shared [claude](https://github.com/pascalheraud/claude)
-skills repo cover working with this library — load the ones relevant to
-what you're doing before writing or reviewing code that uses it:
+**Using this library from another project?** Copy this repo's
+`src/claude/test-data-builder-usage/` into your own project's
+`.claude/skills/` — the condensed "what to write in your project" version
+of this guide (install, GitHub Packages auth, mapping your schema to
+`Table`/`Column`/`Data`). It lives outside `.claude/skills/` here since it's
+not meant to auto-load while working on this repo's own code — see the
+README's "For Claude Code users" section for why and how to copy it.
 
-- `backend-java-test-data-builder` — the generic model itself (templates,
-  naming, lifecycle) this library implements. Load this one always.
-- `backend-java-test-e2e` — the Given/When/Then test structure used
+**Working on this repo's own code?** This repo's own
+`.claude/skills/test-data-builder-library/` skill covers decisions specific
+to *maintaining this codebase* (versioning, the bookstore example, vendor
+support) — load it only when changing the library itself, not when
+consuming it. Skills from the shared [claude](https://github.com/pascalheraud/claude)
+skills repo cover the rest — load the ones relevant to what you're doing:
+
+- `backend/java/test/playwright` — the Given/When/Then test structure used
   throughout this library's own test suite, and the full Java/
   Testcontainers/Playwright E2E stack (scenario classes, PageObjects,
   non-intrusive mocking) if you're writing E2E tests with this library.
-- `test-e2e` — the framework-agnostic scenario/PageObject/snapshot
-  conventions `backend-java-test-e2e` implements; load it if you want the
-  reasoning behind those conventions, not just the Java mechanics.
-
-This repo's own `.claude/skills/test-data-builder-library/` skill covers
-decisions specific to *this* codebase (versioning, the bookstore example,
-vendor support) — load it too when working inside this repo.
+- `test/e2e` — the framework-agnostic scenario/PageObject/snapshot
+  conventions `backend/java/test/playwright` implements; load it if you
+  want the reasoning behind those conventions, not just the Java mechanics.
 
 ## Contributing
 
